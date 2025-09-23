@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="styles.css">
+    <head>
+        <title>Fourier Decomposer</title>
+    </head>
+    <div class="big">
+        <body>
+            <div class="inputs">
+                <label for="audioFileInput" class="btn">Select File</label>
+                <input style="display:none;" type="file" id="audioFileInput" accept="audio/*">
+                <button class="btn" id="record" onclick="recordAudio()">Record Audio</button>
+            </div>
+            <button class="btn" id="upload" onclick="decompose()">Decompose Audio</button>
+        </body>
+    </div>
+    <script src="main.js"></script>
+</html>

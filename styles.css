@@ -1,0 +1,35 @@
+.big {
+    text-align: center;
+    margin: auto;
+    width: 45%;
+    border: 3px solid black;
+    padding: 10px;
+}
+.inputs {
+    margin: auto;
+    width: 90%;
+    padding: 10px;
+}
+body {
+    background-color: grey;
+}
+.btn {
+    display: inline-block;
+    transition-duration: 0.1s;
+    border-radius: 6px;
+    padding: 5px;
+    border: none;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: darkslategrey;
+    color: white;
+    font-size: 16px;
+    box-shadow: 0 4px rgb(26, 26, 26);
+}
+.btn:hover {
+    background-color: rgb(38, 54, 54);
+}
+.btn:active {
+    background-color: rgb(38, 54, 54);
+    box-shadow: 0 0px rgb(26, 26, 26);
+    transform: translateY(4px);
+}

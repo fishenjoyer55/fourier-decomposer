@@ -4,18 +4,22 @@
     <head>
         <title>Fourier Decomposer</title>
     </head>
-    <div class="big">
-        <body>
+    <body>
+        <div class="big">
             <div class="inputs">
                 <label for="audioFileInput" class="btn">Select File</label>
                 <input style="display:none;" type="file" id="audioFileInput" accept="audio/*">
                 <button class="btn" id="record" onclick="recordAudio()">Record Audio</button>
-                <audio id="localAudio" controls></audio>
             </div>
-            <button class="btn" id="upload" onclick="decompose()">Decompose Audio</button>
 
-            <canvas id="wholeAudioCanvas" class="waveCanvas"></cavnas>
-        </body>
-    </div>
+            <audio id="audio" controls>
+                <source src="" id="audioSrc">
+            </audio>
+        <div>
+        <div id="canvasZone">
+            <canvas id="wholeAudioCanvas" class="waveCanvas" width="900" height="200"></canvas>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="main.js"></script>
 </html>

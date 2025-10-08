@@ -4,6 +4,9 @@
     width: 45%;
     padding: 10px;
 }
+#canvasZone {
+    margin-left: -50%;
+}
 .inputs {
     margin: auto;
     width: 90%;
@@ -31,4 +34,19 @@ body {
     background-color: rgb(38, 54, 54);
     box-shadow: 0 0px rgb(26, 26, 26);
     transform: translateY(4px);
+}
+
+.waveCanvas {
+    position: relative;
+    background-color: rosybrown;
+    width: 900px;
+    height: 200px;
+}
+
+.playbarCanvas {
+    position: relative;
+    top: -204px;
+    background-color: rgba(255, 0, 255, 0.5);
+    width: 900px;
+    height: 200px;
 }

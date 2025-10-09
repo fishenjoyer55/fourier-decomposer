@@ -3,7 +3,7 @@ let hasPermission = false;
 
 const audioFileInput = document.getElementById("audioFileInput");
 const wholeAudioCanvas = document.getElementById("wholeAudioCanvas");
-wholeAudioCanvas.addEventListener("click", event => addPlaybar(event.target));
+addPlaybar(wholeAudioCanvas);
 const fourierTransformCanvas = document.getElementById("fourierTransformCanvas");
 
 function recordAudio() {
@@ -26,8 +26,8 @@ function recordAudio() {
 }
 
 function makeAudioPlayable(audioFile) {
-    $("#audioSrc").attr("src", URL.createObjectURL(audioFile));
-    document.getElementById("audio").load();
+    $("#mainAudioSrc").attr("src", URL.createObjectURL(audioFile));
+    document.getElementById("mainAudio").load();
 }
 
 async function graphAudio(audioFile) {
@@ -59,13 +59,34 @@ function drawWave(canvas, samples) {
 
 function addPlaybar(canvas) {
     const newPlaybar = document.createElement("canvas");
+    const ctx = newPlaybar.getContext("2d");
     newPlaybar.classList.add("playbarCanvas");
+    newPlaybar.width = canvas.width;
+    newPlaybar.height = canvas.height;
     document.getElementById("canvasZone").appendChild(newPlaybar);
-}
+    mainAudio = document.getElementById("mainAudio");
 
-$("#audio").on("timeUpdate", () => {
-    console.log("change");
-});
+    let animationFrame;
+    ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvas.width * mainAudio.currentTime/mainAudio.duration, canvas.height);
+        if (!mainAudio.paused && !mainAudio.ended) {
+            animationFrame = requestAnimationFrame(draw);
+        }
+    }
+
+    mainAudio.addEventListener("play", () => {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = requestAnimationFrame(draw);
+    });
+    mainAudio.addEventListener("pause", () => {
+        cancelAnimationFrame(animationFrame);
+    });
+    mainAudio.addEventListener("ended", () => {
+        cancelAnimationFrame(animationFrame);
+    });
+}
 
 //upload listener
 audioFileInput.addEventListener("input", event => {

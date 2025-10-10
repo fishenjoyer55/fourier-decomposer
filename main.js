@@ -4,7 +4,7 @@ let hasPermission = false;
 const audioFileInput = document.getElementById("audioFileInput");
 const wholeAudioCanvas = document.getElementById("wholeAudioCanvas");
 addPlaybar(wholeAudioCanvas);
-const fourierTransformCanvas = document.getElementById("fourierTransformCanvas");
+const frequencyCanvas = document.getElementById("frequencyCanvas");
 
 function recordAudio() {
     window.localAudio = document.getElementById("localAudio");
@@ -26,7 +26,7 @@ function recordAudio() {
 }
 
 function makeAudioPlayable(audioFile) {
-    $("#mainAudioSrc").attr("src", URL.createObjectURL(audioFile));
+    document.getElementById("mainAudioSrc").src = URL.createObjectURL(audioFile);
     document.getElementById("mainAudio").load();
 }
 
@@ -34,9 +34,14 @@ async function graphAudio(audioFile) {
     const audioBuffer = await new AudioContext().decodeAudioData(await audioFile.arrayBuffer());
     const samples = audioBuffer.getChannelData(0);
     drawWave(wholeAudioCanvas, samples);
+    const magnitudes = magnitudize(FFT(samples));
+    // for (let i = 0; i < magnitudes.length; i++) {
+    //     console.log(magnitudes[i]);
+    // }
+    drawWave(frequencyCanvas, magnitudize(FFT(samples)), true);
 }
 
-function drawWave(canvas, samples) {
+function drawWave(canvas, samples, inFrequencyDomain = false) {
     console.log("drawingwave attempt");
     //lowkey did not know a sample was a single moment in time. i thought a sample was like a 5-second audio
     const ctx = canvas.getContext("2d");
@@ -48,10 +53,18 @@ function drawWave(canvas, samples) {
     console.log("canvas width: " + canvas.width);
     
     //increment p once for every pixel of the canvas. literally pixel by pixel plotting
-    for (let p = 0; p < canvas.width; p++) {
-        //for each pixel, go to the corresponding section in the sample array and draw a line whose height is the amplitude difference (volume). centered and scaled to axis.
-        ctx.moveTo(p, canvas.height / 2 * (1 + Math.min(...samples.slice(p * step, (p + 1) * step))));
-        ctx.lineTo(p, canvas.height / 2 * (1 + Math.max(...samples.slice(p * step, (p + 1) * step))));
+    if (!inFrequencyDomain) {
+        for (let p = 0; p < canvas.width; p++) {
+            //for each pixel, go to the corresponding section in the sample array and draw a line whose height is the amplitude difference (volume). centered and scaled to axis.
+            ctx.moveTo(p, canvas.height / 2 * (1 + Math.min(...samples.slice(p * step, (p + 1) * step))));
+            ctx.lineTo(p, canvas.height / 2 * (1 + Math.max(...samples.slice(p * step, (p + 1) * step))));
+        }
+    } else {
+        for (let p = 0; p < canvas.width; p++) {
+            //special case for plotting the fourier transform cause it's so goddamn tall
+            ctx.moveTo(p, canvas.height / 10 * (Math.min(...samples.slice(p * step, (p + 1) * step))));
+            ctx.lineTo(p, canvas.height / 10 * (Math.max(...samples.slice(p * step, (p + 1) * step))));
+        }
     }
     //who up stroking they 2dcontext
     ctx.stroke();
@@ -63,6 +76,9 @@ function addPlaybar(canvas) {
     newPlaybar.classList.add("playbarCanvas");
     newPlaybar.width = canvas.width;
     newPlaybar.height = canvas.height;
+    const boundingRect = canvas.getBoundingClientRect();
+    newPlaybar.style.left = boundingRect.left + window.scrollX + "px";
+    newPlaybar.style.top = boundingRect.top + window.scrollY + "px";
     document.getElementById("canvasZone").appendChild(newPlaybar);
     mainAudio = document.getElementById("mainAudio");
 
@@ -86,6 +102,10 @@ function addPlaybar(canvas) {
     mainAudio.addEventListener("ended", () => {
         cancelAnimationFrame(animationFrame);
     });
+}
+
+function decompose() {
+    
 }
 
 //upload listener

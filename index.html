@@ -10,6 +10,7 @@
                 <label for="audioFileInput" class="btn">Select File</label>
                 <input style="display:none;" type="file" id="audioFileInput" accept="audio/*">
                 <button class="btn" id="record" onclick="recordAudio()">Record Audio</button>
+                <button class="btn" id="decompose" onclick="decompose()">Decompose!</button>
             </div>
 
             <audio id="mainAudio" controls>
@@ -17,8 +18,9 @@
             </audio>
         <div>
         <div id="canvasZone">
-            <canvas id="wholeAudioCanvas" class="waveCanvas" width="900" height="200"></canvas>
-            <canvas id="frequencyCanvas" class="waveCanvas" width="900" height="800"></canvas>
+            <canvas id="wholeAudioCanvas" class="waveCanvas" width="700" height="200"></canvas>
+            <canvas id="frequencyCanvas" class="waveCanvas" width="700" height="300"></canvas>
+            <canvas id="reconstructionCanvas" class="waveCanvas" width="700" height="200"></canvas>
         </div>
     </body>
     <script src="fastFourierTransformer.js"></script>

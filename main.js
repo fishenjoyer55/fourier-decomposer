@@ -3,8 +3,11 @@ let hasPermission = false;
 
 const audioFileInput = document.getElementById("audioFileInput");
 const wholeAudioCanvas = document.getElementById("wholeAudioCanvas");
-addPlaybar(wholeAudioCanvas);
 const frequencyCanvas = document.getElementById("frequencyCanvas");
+const reconstructionCanvas = document.getElementById("reconstructionCanvas");
+
+let samples;
+let forwardFFT = [];
 
 function recordAudio() {
     window.localAudio = document.getElementById("localAudio");
@@ -25,33 +28,25 @@ function recordAudio() {
     }
 }
 
-function makeAudioPlayable(audioFile) {
-    document.getElementById("mainAudioSrc").src = URL.createObjectURL(audioFile);
-    document.getElementById("mainAudio").load();
-}
-
 async function graphAudio(audioFile) {
     const audioBuffer = await new AudioContext().decodeAudioData(await audioFile.arrayBuffer());
-    const samples = audioBuffer.getChannelData(0);
+    samples = audioBuffer.getChannelData(0);
     drawWave(wholeAudioCanvas, samples);
-    const magnitudes = magnitudize(FFT(samples));
-    // for (let i = 0; i < magnitudes.length; i++) {
-    //     console.log(magnitudes[i]);
-    // }
-    drawWave(frequencyCanvas, magnitudize(FFT(samples)), true);
+    addPlaybar(wholeAudioCanvas, audioBuffer);
+
+    //one of two FFTs used here. check fastFourierTransformer.js for code
+    forwardFFT = FFT(samples);
+    drawWave(frequencyCanvas, magnitudize(forwardFFT), true);
 }
 
 function drawWave(canvas, samples, inFrequencyDomain = false) {
-    console.log("drawingwave attempt");
     //lowkey did not know a sample was a single moment in time. i thought a sample was like a 5-second audio
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "blue";
     ctx.beginPath();
     const step = Math.ceil(samples.length/canvas.width);
-    console.log("samples length: " + samples.length);
-    console.log("canvas width: " + canvas.width);
-    
+
     //increment p once for every pixel of the canvas. literally pixel by pixel plotting
     if (!inFrequencyDomain) {
         for (let p = 0; p < canvas.width; p++) {
@@ -70,7 +65,17 @@ function drawWave(canvas, samples, inFrequencyDomain = false) {
     ctx.stroke();
 }
 
-function addPlaybar(canvas) {
+function bufferToSource(buffer) {
+    const audioCtx = new AudioContext();
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    return source;
+}
+
+function addPlaybar(canvas, buffer) {
+    audioCtx = new AudioContext();
+    const source = bufferToSource(buffer, audioCtx);
     const newPlaybar = document.createElement("canvas");
     const ctx = newPlaybar.getContext("2d");
     newPlaybar.classList.add("playbarCanvas");
@@ -80,37 +85,48 @@ function addPlaybar(canvas) {
     newPlaybar.style.left = boundingRect.left + window.scrollX + "px";
     newPlaybar.style.top = boundingRect.top + window.scrollY + "px";
     document.getElementById("canvasZone").appendChild(newPlaybar);
-    mainAudio = document.getElementById("mainAudio");
 
     let animationFrame;
+    let startTime;
     ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillRect(0, 0, canvas.width * mainAudio.currentTime/mainAudio.duration, canvas.height);
-        if (!mainAudio.paused && !mainAudio.ended) {
-            animationFrame = requestAnimationFrame(draw);
-        }
+        ctx.fillRect(0, 0, canvas.width * (audioCtx.currentTime - startTime)/buffer.duration, canvas.height);
+        animationFrame = requestAnimationFrame(draw);
     }
 
-    mainAudio.addEventListener("play", () => {
-        cancelAnimationFrame(animationFrame);
+    newPlaybar.addEventListener("click", () => {
+        startTime = audioCtx.currentTime;
+        console.log("start time: " + startTime);
+        bufferToSource(buffer).start();
         animationFrame = requestAnimationFrame(draw);
-    });
-    mainAudio.addEventListener("pause", () => {
-        cancelAnimationFrame(animationFrame);
-    });
-    mainAudio.addEventListener("ended", () => {
-        cancelAnimationFrame(animationFrame);
-    });
+    })
 }
 
 function decompose() {
+    // for (let i = 0; i < forwardFFT.length; i++) {
+    //     console.log(forwardFFT[i] instanceof ComplexNumber);
+    // }
+    const inverseFFT = FFT(forwardFFT, -1);
+    const reInverseFFT = new Array(inverseFFT.length/2);
+    for (let i = 0; i < inverseFFT.length/2; i++) {
+        inverseFFT[i].re /= inverseFFT.length;
+        inverseFFT[i].im /= inverseFFT.length;
+        reInverseFFT[i] = inverseFFT[i].re;
+        //console.log(inverseFFT[i]);
+    }
+
+    drawWave(reconstructionCanvas, reInverseFFT);
     
+    const audioCtx = new AudioContext();
+    const buffer = audioCtx.createBuffer(1, reInverseFFT.length, audioCtx.sampleRate);
+    buffer.copyToChannel(new Float32Array(reInverseFFT), 0);
+    addPlaybar(reconstructionCanvas, buffer);
 }
 
 //upload listener
 audioFileInput.addEventListener("input", event => {
     const audioFile = audioFileInput.files[0];
-    makeAudioPlayable(audioFile);
+    // makeAudioPlayable(audioFile);
     graphAudio(audioFile);
 });

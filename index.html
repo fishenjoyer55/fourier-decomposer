@@ -11,6 +11,7 @@
                 <input style="display:none;" type="file" id="audioFileInput" accept="audio/*">
                 <button class="btn" id="record" onclick="recordAudio()">Record Audio</button>
                 <button class="btn" id="decompose" onclick="decompose()">Decompose!</button>
+                <button class="btn" id="reconstruct" onclick="reconstruct()">Reconstruct!</button>
             </div>
 
             <audio id="mainAudio" controls>
@@ -20,6 +21,12 @@
         <div id="canvasZone">
             <canvas id="wholeAudioCanvas" class="waveCanvas" width="700" height="200"></canvas>
             <canvas id="frequencyCanvas" class="waveCanvas" width="700" height="300"></canvas>
+            <canvas id="sinusoidCanvas0" class="waveCanvas" width="700" height="100"></canvas>
+            <canvas id="sinusoidCanvas1" class="waveCanvas" width="700" height="100"></canvas>
+            <canvas id="sinusoidCanvas2" class="waveCanvas" width="700" height="100"></canvas>
+            <label for="isolateRange" class="btn">Isolate frequencies by magnitude: </label>
+            <input type="number" id="isolateRange" placeholder="Integer from 0 to [transform length]">
+            <button class="btn" id="includeExclude" onclick="toggleIncludeExclude()">Include</button>
             <canvas id="reconstructionCanvas" class="waveCanvas" width="700" height="200"></canvas>
         </div>
     </body>

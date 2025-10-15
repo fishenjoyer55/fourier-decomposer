@@ -4,10 +4,15 @@ let hasPermission = false;
 const audioFileInput = document.getElementById("audioFileInput");
 const wholeAudioCanvas = document.getElementById("wholeAudioCanvas");
 const frequencyCanvas = document.getElementById("frequencyCanvas");
+const sinusoidCanvas = [document.getElementById("sinusoidCanvas0"), document.getElementById("sinusoidCanvas1"), document.getElementById("sinusoidCanvas2")];
 const reconstructionCanvas = document.getElementById("reconstructionCanvas");
 
 let samples;
-let forwardFFT = [];
+let forwardFFT;
+let magnitudes;
+let sortedMagnitudes;
+let isolateRange;
+let include = true;
 
 function recordAudio() {
     window.localAudio = document.getElementById("localAudio");
@@ -33,10 +38,6 @@ async function graphAudio(audioFile) {
     samples = audioBuffer.getChannelData(0);
     drawWave(wholeAudioCanvas, samples);
     addPlaybar(wholeAudioCanvas, audioBuffer);
-
-    //one of two FFTs used here. check fastFourierTransformer.js for code
-    forwardFFT = FFT(samples);
-    drawWave(frequencyCanvas, magnitudize(forwardFFT), true);
 }
 
 function drawWave(canvas, samples, inFrequencyDomain = false) {
@@ -97,19 +98,72 @@ function addPlaybar(canvas, buffer) {
 
     newPlaybar.addEventListener("click", () => {
         startTime = audioCtx.currentTime;
-        console.log("start time: " + startTime);
         bufferToSource(buffer).start();
         animationFrame = requestAnimationFrame(draw);
     })
 }
 
 function decompose() {
+    //one of two FFTs used here. check fastFourierTransformer.js for code
+    forwardFFT = FFT(samples);
+    console.log(forwardFFT.length);
+    magnitudes = magnitudize(forwardFFT);
+    drawWave(frequencyCanvas, magnitudes, true);
     // for (let i = 0; i < forwardFFT.length; i++) {
     //     console.log(forwardFFT[i] instanceof ComplexNumber);
     // }
-    const inverseFFT = FFT(forwardFFT, -1);
-    const reInverseFFT = new Array(inverseFFT.length/2);
-    for (let i = 0; i < inverseFFT.length/2; i++) {
+    
+    //sort magnitudes from largest to smallest
+    sortedMagnitudes = magnitudes.toSorted((a, b) => b - a);
+    console.log("max: " + sortedMagnitudes[0] + " min: " + sortedMagnitudes[sortedMagnitudes.length - 1]);
+
+    function reconstructedCosine(frequency, phase) {
+        const wave = new Array(samples.length);
+        for (let t = 0; t < samples.length; t++) {
+            //divide by 100 for visualization... otherwise it oscillates way too fast and looks like a solid rectangle
+            wave[t] = Math.cos((2 * Math.PI * frequency/samples.length * t / 100 + phase));
+        }
+        return wave;
+    }
+
+    for (let i = 0; i < 3; i++) {
+        const frequency = magnitudes.indexOf(sortedMagnitudes[i]);
+        const phase = Math.atan2(forwardFFT[frequency].im, forwardFFT[frequency].re);
+        console.log("frequency: " + frequency + "phase: " + phase);
+        drawWave(sinusoidCanvas[i], reconstructedCosine(frequency, phase));
+    }
+}
+
+document.getElementById("isolateRange").addEventListener("change", event => {
+    isolateRange = event.target.value;
+    console.log("isolaterange: " + isolateRange);
+});
+
+function toggleIncludeExclude() {
+    include = !include;
+    console.log("include is now: " + include);
+}
+
+function reconstruct() {
+    let splicedMagnitudes = sortedMagnitudes;
+    if (include) {
+        splicedMagnitudes.splice(isolateRange);
+        console.log("now splicing beyond " + isolateRange + ", remaining length: " + splicedMagnitudes.length);
+    } else {   
+        splicedMagnitudes.splice(0, isolateRange);
+        console.log("now splicing up to " + isolateRange + ", remaining length: " + splicedMagnitudes.length);
+    }
+    console.log("max: " + splicedMagnitudes[0] + " min: " + splicedMagnitudes[splicedMagnitudes.length - 1]);
+    splicedMagnitudes = new Set(splicedMagnitudes);
+    let isolatedForwardFFT = new Array(forwardFFT.length).fill(0);
+    for (let i = 0; i < forwardFFT.length; i++) {
+        if (splicedMagnitudes.has(magnitudes[i])) {
+            isolatedForwardFFT[i] = forwardFFT[i];
+        }
+    }
+    const inverseFFT = FFT(isolatedForwardFFT, -1);
+    const reInverseFFT = new Array(samples.length);
+    for (let i = 0; i < samples.length; i++) {
         inverseFFT[i].re /= inverseFFT.length;
         inverseFFT[i].im /= inverseFFT.length;
         reInverseFFT[i] = inverseFFT[i].re;

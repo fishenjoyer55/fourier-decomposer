@@ -50,18 +50,14 @@ function ComplexNumber(re, im) {
     this.im = im || 0;
 }
 
-function magnitudize(signal, isLog = true) {
-    const magnitudes = [];
+function magnitudize(signal) {
+    const magnitudes = new Array(signal.length/2);
     for (let i = 0; i < signal.length/2; i++) {
-        //magnitude of complex number
-        magnitudes.push(Math.pow(Math.pow(signal[i].re, 2) + Math.pow(signal[i].im, 2), 2));
-    }
-    for (let i = 0; i < magnitudes.length; i++) {
-        //Hanning window. what does it do. apparently cleans up spectral noise
-        magnitudes[i] *= 0.5 * (1 - Math.cos(2 * Math.PI * i / (signal.length - 1)));
-        if (isLog) {
-            magnitudes[i] = Math.log10(magnitudes[i]);
+        if (!(signal[i] instanceof ComplexNumber)) {
+            console.log(signal[i]);
         }
+        //magnitude of complex number and also Hanning window
+        magnitudes[i] = Math.hypot(signal[i].re, signal[i].im) * 0.5 * (1 - Math.cos(2 * Math.PI * i / (signal.length - 1)));
     }
     return magnitudes;
 }

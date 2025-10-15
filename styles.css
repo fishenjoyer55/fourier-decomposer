@@ -39,14 +39,9 @@ body {
 .waveCanvas {
     position: relative;
     background-color: rosybrown;
-    width: 900px;
-    height: 200px;
 }
 
 .playbarCanvas {
-    position: relative;
-    top: -204px;
-    background-color: rgba(255, 0, 255, 0.5);
-    width: 900px;
-    height: 200px;
+    position: absolute;
+    background-color: transparent;
 }

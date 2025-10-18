@@ -5,16 +5,14 @@
     padding: 10px;
 }
 #canvasZone {
-    margin-left: -50%;
+    margin: auto;
 }
 .inputs {
     margin: auto;
     width: 90%;
     padding: 10px;
 }
-body {
-    background-color: grey;
-}
+
 .btn {
     display: inline-block;
     transition-duration: 0.1s;
@@ -22,26 +20,142 @@ body {
     padding: 5px;
     border: none;
     font-family: 'Courier New', Courier, monospace;
-    background-color: darkslategrey;
+    background-color: rgb(71, 47, 79);
     color: white;
     font-size: 16px;
     box-shadow: 0 4px rgb(26, 26, 26);
 }
+
 .btn:hover {
-    background-color: rgb(38, 54, 54);
+    background-color: rgb(54, 38, 53);
 }
 .btn:active {
-    background-color: rgb(38, 54, 54);
+    background-color: rgb(54, 38, 53);
     box-shadow: 0 0px rgb(26, 26, 26);
     transform: translateY(4px);
 }
 
+.toolshrimp {
+    position: absolute;
+    left: 100px;
+    z-index: 2;
+}
+.toolshrimptext {
+    position: absolute;
+    left: 140px;
+    width: 600px;
+    display: inline-block;
+    transition-duration: 0.1s;
+    border-radius: 6px;
+    padding: 5px;
+    border: none;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: rgb(71, 47, 79);
+    color: white;
+    font-size: 16px;
+    box-shadow: 0 4px rgb(26, 26, 26);
+    z-index: 3;
+}
+.toolshrimp .toolshrimptext {
+    visibility: hidden;
+}
+.toolshrimp:hover .toolshrimptext {
+    visibility: visible;
+}
+#toolshrimp0{
+    top: 50px;
+}
+#toolshrimp1 {
+    top: 295px;
+}
+#toolshrimp2 {
+    top: 730px;
+}
+#toolshrimp3 {
+    top: 980px;
+}
+#toolshrimp4 {
+    top: 1415px;
+}
+#toolshrimp5 {
+    top: 1750px;
+}
+
+.axes {
+    position: absolute;
+    left: 135px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
 .waveCanvas {
     position: relative;
-    background-color: rosybrown;
+    margin-left: -38%;
+    background-color: rgb(21, 3, 39);
+    border-color: white;
+    border-width: 10px;;
 }
 
 .playbarCanvas {
     position: absolute;
     background-color: transparent;
+}
+
+#includeExclude {
+    color: rgb(255, 0, 0);
+}
+
+.separator {
+    margin: 50px;
+}
+
+#jellyfishBackground {
+    position: absolute;
+    left: 0px;
+    top: 1160;
+    background-color: rgb(41, 6, 56);
+    z-index: -4;
+    width: 100%;
+    height: 410px;
+}
+#jellyfishAquarium {
+    position: absolute;
+    left: -300px;
+    top: 1160px;
+    z-index: -3;
+}
+#blackout {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 1830px;
+    background: #ffffff;
+    background: linear-gradient(180deg,rgba(255, 255, 255, 1) 0%, rgba(26, 16, 46, 1) 82%, rgba(26, 16, 46, 0.5) 100%);
+    z-index: -2;
+}
+
+#spanner1 {
+    position: absolute;
+    left: 0px;
+    top: 1160px;
+    z-index: -1;
+}
+
+#spanner2 {
+    position: absolute;
+    left: 0px;
+    top: 380px;
+    z-index: -1;
+}
+
+.misctext {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    font-size: 16px;
+}
+
+#credits {
+    position: absolute;
+    top: 1750px;
+    left: 300px;
 }
